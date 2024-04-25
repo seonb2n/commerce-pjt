@@ -1,7 +1,13 @@
 package com.example.commercepjt.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.example.commercepjt.domain.Category;
+import com.example.commercepjt.domain.UserSeller;
+import com.example.commercepjt.repository.CategoryRepository;
+import com.example.commercepjt.repository.UserSellerRepository;
+import com.example.commercepjt.service.facade.SellerFacadeService;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +21,26 @@ class SellerFacadeServiceTest {
     @Autowired
     private SellerFacadeService service;
 
+    private static UserSeller userSeller;
+    private static Category category;
+
+    @BeforeAll
+    static void setUp(@Autowired UserSellerRepository userSellerRepository,
+        @Autowired CategoryRepository categoryRepository) {
+        userSeller = userSellerRepository.save(
+            UserSeller.builder().nickName("seller").profit(0).build());
+        category = categoryRepository.save(Category.builder().name("category").build());
+    }
+
     @DisplayName("상품 업로드가 성공하면, id 가 포함된 상품 dto 가 반환된다.")
     @Test
     public void whenUploadItem_thenReturnItemDto() throws Exception {
         //when
-
+        var responseDto = service.uploadProduct(userSeller.getId(), category.getId(), "name",
+            "description", 1000, 10);
 
         //then
+        assertEquals(userSeller.getNickName(), responseDto.userSellerName());
     }
 
     @DisplayName("배송 상태를 취소로 변경하면, 재고가 추가되고, 환불 절차에 들어간다.")
@@ -29,9 +48,7 @@ class SellerFacadeServiceTest {
     public void whenChangeOrderStatus_thenRollbackOrder() throws Exception {
         //given
 
-
         //when
-
 
         //then
     }
@@ -41,9 +58,7 @@ class SellerFacadeServiceTest {
     public void whenOrderIsShipping_thenCannotChangeOrderStatus() throws Exception {
         //given
 
-
         //when
-
 
         //then
     }
@@ -53,9 +68,7 @@ class SellerFacadeServiceTest {
     public void whenOrderIsComplete_thenCannotChangeOrderStatus() throws Exception {
         //given
 
-
         //when
-
 
         //then
     }
@@ -65,9 +78,7 @@ class SellerFacadeServiceTest {
     public void whenStopSelling_thenChangeItemStatus() throws Exception {
         //given
 
-
         //when
-
 
         //then
     }
@@ -77,9 +88,7 @@ class SellerFacadeServiceTest {
     public void whenResumeSelling_thenChangeItemStatus() throws Exception {
         //given
 
-
         //when
-
 
         //then
     }
@@ -89,9 +98,7 @@ class SellerFacadeServiceTest {
     public void whenFindMyItems_thenReturnItemsList() throws Exception {
         //given
 
-
         //when
-
 
         //then
     }
@@ -101,9 +108,7 @@ class SellerFacadeServiceTest {
     public void whenOrdersAndCompleteShipping_thenGotProfits() throws Exception {
         //given
 
-
         //when
-
 
         //then
     }

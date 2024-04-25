@@ -10,12 +10,16 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "CATEGORY")
 @Getter @Setter
+@NoArgsConstructor
 public class Category extends BaseEntity {
 
     @Id
@@ -27,4 +31,9 @@ public class Category extends BaseEntity {
     private List<Item> itemList = new ArrayList<>();
 
     private String name;
+
+    @Builder
+    public Category(String name) {
+        this.name = name;
+    }
 }

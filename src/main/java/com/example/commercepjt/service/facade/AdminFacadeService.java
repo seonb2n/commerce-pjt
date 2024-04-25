@@ -1,4 +1,4 @@
-package com.example.commercepjt.service;
+package com.example.commercepjt.service.facade;
 
 import org.springframework.stereotype.Service;
 
