@@ -1,6 +1,5 @@
 package com.example.commercepjt.domain;
 
-import com.example.commercepjt.dto.response.ItemDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,7 +12,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,9 +35,6 @@ public class Item extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_SELLER_ID")
     private UserSeller userSeller;
-
-    @OneToMany(mappedBy = "item")
-    private List<OrderItem> orderItemList = new ArrayList<>();
 
     @OneToMany(mappedBy = "item")
     private List<Comment> commentList = new ArrayList<>();

@@ -35,5 +35,5 @@ public class OrderItem extends BaseEntity {
 
     private int itemQuantity;
 
-    private int itemPrice;
+    private int purchasedItemPrice;
 }
