@@ -1,5 +1,7 @@
 package com.example.commercepjt.service.facade;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.example.commercepjt.domain.Category;
 import com.example.commercepjt.domain.UserBuyer;
 import com.example.commercepjt.domain.UserSeller;
@@ -35,28 +37,32 @@ class BuyerFacadeServiceTest {
     @DisplayName("상품을 장바구니에 추가할 수 있다.")
     @Test
     public void whenAddItemToBag_thenReturnOrderItem() throws Exception {
-        //given
-
         //when
+        var response = service.createItemOrderForBag();
 
         //then
+        assertNotNull(response.id());
     }
 
     @DisplayName("상품을 장바구니에 담으면, 장바구니에서 상품 목록을 확인할 수 있다.")
     @Test
     public void whenAddItemToBag_thenReturnOrderItemDtoList() throws Exception {
         //when
+        var response = service.createItemOrderForBag();
+        var itemList = service.getOrderItemListInBag();
 
         //then
+        assertNotNull(itemList);
     }
 
     @DisplayName("장바구니에 담긴 상품들로 주문을 할 수 있다.")
     @Test
     public void whenUsingOrderItemsInBag_thenCreateOrder() throws Exception {
-        //given
-
         //when
+        var itemList = service.getOrderItemListInBag();
+        var orderResponse = service.createOrder();
 
         //then
+        assertNotNull(orderResponse);
     }
 }
