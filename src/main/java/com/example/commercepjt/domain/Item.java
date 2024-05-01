@@ -71,4 +71,12 @@ public class Item extends BaseEntity {
     public int getPrice() {
         return (int) Math.ceil((double) price * Double.parseDouble(this.itemMargin.getMarginRate()));
     }
+
+    public void minusStockQuantity(int orderQuantity) throws Exception {
+        if (this.stockQuantity >= orderQuantity) {
+            this.stockQuantity = stockQuantity - orderQuantity;
+        } else {
+            throw new Exception("상품 수량이 주문량보다 적습니다.");
+        }
+    }
 }

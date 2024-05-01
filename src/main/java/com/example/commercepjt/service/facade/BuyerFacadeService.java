@@ -6,7 +6,6 @@ import com.example.commercepjt.domain.Order;
 import com.example.commercepjt.domain.OrderItem;
 import com.example.commercepjt.domain.UserBuyer;
 import com.example.commercepjt.dto.response.OrderCreatedDto;
-import com.example.commercepjt.dto.response.OrderItemCompleteDto;
 import com.example.commercepjt.dto.response.OrderItemCreatedDto;
 import com.example.commercepjt.service.ItemService;
 import com.example.commercepjt.service.OrderItemService;
@@ -64,16 +63,19 @@ public class BuyerFacadeService {
     /**
      * 장바구니에 담긴 상품을 주문한다.
      * todo 주문이 생성 된 후, 결제가 진행된다.
+     *
      * @param buyerId
      * @return
      */
     @Transactional
-    public OrderCreatedDto createOrder(long buyerId) {
+    public OrderCreatedDto createOrder(long buyerId) throws Exception {
         UserBuyer buyer = userBuyerService.getUserBuyerById(buyerId);
         List<OrderItem> orderItemList = orderItemService.findAllItemsByBuyerId(buyerId);
 
         for (OrderItem orderItem : orderItemList) {
-            orderItem.setPurchasedItemPrice(orderItem.getItem().getPrice() * orderItem.getItemQuantity());
+            orderItem.setPurchasedItemPrice(
+                orderItem.getItem().getPrice() * orderItem.getItemQuantity());
+            orderItem.getItem().minusStockQuantity(orderItem.getItemQuantity());
         }
 
         Order order = Order.builder().userBuyer(buyer).orderItemList(orderItemList).paymentStatus(
@@ -81,7 +83,7 @@ public class BuyerFacadeService {
 
         Order savedOrder = orderService.save(order);
         return new OrderCreatedDto(savedOrder);
-    };
+    }
 
     /**
      * 추천 상품 목록을 페이지로 조회할 수 있다.
