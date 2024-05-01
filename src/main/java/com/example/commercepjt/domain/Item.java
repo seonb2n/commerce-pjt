@@ -67,4 +67,8 @@ public class Item extends BaseEntity {
         this.stockQuantity = stockQuantity;
         this.isSelling = isSelling;
     }
+
+    public int getPrice() {
+        return (int) Math.ceil((double) price * Double.parseDouble(this.itemMargin.getMarginRate()));
+    }
 }
