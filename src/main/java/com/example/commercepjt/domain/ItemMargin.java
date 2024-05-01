@@ -4,9 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,8 +14,6 @@ import lombok.Setter;
 @Table(name = "ITEM_MARGIN")
 @Getter
 @Setter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 public class ItemMargin extends BaseEntity {
 
@@ -27,4 +23,9 @@ public class ItemMargin extends BaseEntity {
     private Long id;
 
     private String marginRate;
+
+    @Builder
+    public ItemMargin(String marginRate) {
+        this.marginRate = marginRate;
+    }
 }
