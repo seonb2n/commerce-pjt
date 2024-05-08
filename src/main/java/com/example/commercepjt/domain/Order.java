@@ -16,13 +16,16 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "ORDER")
+@Table(name = "ORDERS")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Order extends BaseEntity {
 
     @Id
@@ -43,4 +46,18 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private DeliveryStatus deliveryStatus;
 
+    private int totalPrice;
+
+    @Builder
+    public Order(UserBuyer userBuyer, List<OrderItem> orderItemList, PaymentStatus paymentStatus) {
+        this.userBuyer = userBuyer;
+        this.orderItemList = orderItemList;
+        this.paymentStatus = paymentStatus;
+        this.deliveryStatus = DeliveryStatus.READY;
+        int totalPrice = 0;
+        for (OrderItem orderItem : orderItemList) {
+            totalPrice += orderItem.getItemQuantity() * orderItem.getPurchasedItemPrice();
+        }
+        this.totalPrice = totalPrice;
+    }
 }

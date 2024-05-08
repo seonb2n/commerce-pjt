@@ -1,12 +1,12 @@
-package com.example.commercepjt.service;
+package com.example.commercepjt.service.facade;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.example.commercepjt.domain.Category;
 import com.example.commercepjt.domain.UserSeller;
+import com.example.commercepjt.dto.response.ItemDto;
 import com.example.commercepjt.repository.CategoryRepository;
 import com.example.commercepjt.repository.UserSellerRepository;
-import com.example.commercepjt.service.facade.SellerFacadeService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,8 +36,7 @@ class SellerFacadeServiceTest {
     @Test
     public void whenUploadItem_thenReturnItemDto() throws Exception {
         //when
-        var responseDto = service.uploadProduct(userSeller.getId(), category.getId(), "name",
-            "description", 1000, 10);
+        var responseDto = createItem("name", "description", 1000, 10);
 
         //then
         assertEquals(userSeller.getNickName(), responseDto.userSellerName());
@@ -111,5 +110,10 @@ class SellerFacadeServiceTest {
         //when
 
         //then
+    }
+
+    private ItemDto createItem(String name, String description, int price, int stockQuantity) {
+        return service.uploadProduct(userSeller.getId(), category.getId(), name, description, price,
+            stockQuantity);
     }
 }
