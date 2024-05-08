@@ -23,4 +23,6 @@
 - 자신이 판매 중인 상품 목록을 확인할 수 있다.
 - 일간 총 수익을 확인할 수 있다.
 
-![Entity ERD](entity_erd_240408.png)
+![Entity ERD](erd_0508.png)
+
+![Flow Chart](flow_chart_0508.png)
