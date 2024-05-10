@@ -1,12 +1,10 @@
 package com.example.commercepjt.service.facade;
 
-import com.example.commercepjt.common.enums.DeliveryStatus;
 import com.example.commercepjt.domain.Category;
 import com.example.commercepjt.domain.Item;
 import com.example.commercepjt.domain.ItemMargin;
 import com.example.commercepjt.domain.UserSeller;
 import com.example.commercepjt.dto.response.ItemDto;
-import com.example.commercepjt.repository.ItemRepository;
 import com.example.commercepjt.service.CategoryService;
 import com.example.commercepjt.service.ItemMarginService;
 import com.example.commercepjt.service.ItemService;
@@ -61,12 +59,30 @@ public class SellerFacadeService {
     }
 
     /**
-     * 상품 배송 상태를 변경할 수 있다.
+     * 상품 배송 상태를 생성에서 준비로 변경할 수 있다.
      *
      * @param orderId
      * @param deliveryStatus
      */
-    void changeProductDeliveryStatus(long sellerId, long orderId, DeliveryStatus deliveryStatus) {
+    void changeProductDeliveryStatusToReady(long sellerId, long orderId) {
+    }
+
+    /**
+     * 상품 배송 상태를 준비에서 배송으로 변경할 수 있다.
+     *
+     * @param orderId
+     * @param deliveryStatus
+     */
+    void changeProductDeliveryStatusToTransit(long sellerId, long orderId) {
+    }
+
+    /**
+     * 상품 배송 상태를 주문 생성에서 주문 취소로 변경할 수 있다.
+     *
+     * @param orderId
+     * @param deliveryStatus
+     */
+    void changeProductDeliveryStatusToCancel(long sellerId, long orderId) {
     }
 
     /**

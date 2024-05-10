@@ -42,9 +42,40 @@ class SellerFacadeServiceTest {
         assertEquals(userSeller.getNickName(), responseDto.userSellerName());
     }
 
-    @DisplayName("배송 상태를 취소로 변경하면, 재고가 추가되고, 환불 절차에 들어간다.")
+    @DisplayName("주문이 생성되면, 판매자는 배송 준비로 상태를 변경할 수 있다.")
     @Test
-    public void whenChangeOrderStatus_thenRollbackOrder() throws Exception {
+    public void whenChangeDeliveryStatusToReady_thenReturnOrderStatus() throws Exception {
+        //given
+
+        //when
+
+        //then
+    }
+
+    @DisplayName("준비중인 주문을, 판매자는 배송 중 상태로 변경할 수 있다.")
+    @Test
+    public void whenChangeDeliveryStatusToTransit_thenReturnOrderStatus() throws Exception {
+        //given
+
+        //when
+
+        //then
+    }
+
+    @DisplayName("준비중인 주문을 판매자는 취소 상태로 변경할 수 있다")
+    @Test
+    public void whenChangeDeliveryStatusToCancelFromReady_thenReturnOrderStatus() throws Exception {
+        //given
+
+        //when
+
+        //then
+    }
+
+    @DisplayName("생성된 주문을, 판매자는 취소 상태로 변경할 수 있다.")
+    @Test
+    public void whenChangeDeliveryStatusToCancelFromCreated_thenReturnOrderStatus()
+        throws Exception {
         //given
 
         //when
