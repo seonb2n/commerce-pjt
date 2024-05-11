@@ -1,7 +1,10 @@
 package com.example.commercepjt.domain;
 
+import com.example.commercepjt.common.enums.DeliveryStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -40,6 +43,9 @@ public class OrderItem extends BaseEntity {
 
     private int purchasedItemPrice;
 
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatus deliveryStatus;
+
     @Builder
     public OrderItem(UserBuyer userBuyer, Item item, Order order, int itemQuantity,
         int purchasedItemPrice) {
@@ -48,5 +54,6 @@ public class OrderItem extends BaseEntity {
         this.order = order;
         this.itemQuantity = itemQuantity;
         this.purchasedItemPrice = purchasedItemPrice;
+        this.deliveryStatus = DeliveryStatus.READY;
     }
 }
