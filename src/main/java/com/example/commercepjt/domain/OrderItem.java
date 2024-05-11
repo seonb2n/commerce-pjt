@@ -54,6 +54,44 @@ public class OrderItem extends BaseEntity {
         this.order = order;
         this.itemQuantity = itemQuantity;
         this.purchasedItemPrice = purchasedItemPrice;
-        this.deliveryStatus = DeliveryStatus.READY;
+        this.deliveryStatus = DeliveryStatus.CREATED;
+    }
+
+    public void setDeliveryStatus(DeliveryStatus deliveryStatus) {
+        switch (deliveryStatus) {
+            case READY -> this.setDeliveryStatusToReady();
+            case IN_TRANSIT -> this.setDeliveryStatusToInTransit();
+            case DONE -> this.setDeliveryStatusToDone();
+            case CANCEL -> this.setDeliveryStatusToCancel();
+        }
+    }
+
+    private void setDeliveryStatusToReady() {
+        if (this.deliveryStatus == DeliveryStatus.CREATED) {
+            this.deliveryStatus = DeliveryStatus.READY;
+        }
+        throw new RuntimeException("Delivery status can be changed from created");
+    }
+
+    private void setDeliveryStatusToInTransit() {
+        if (this.deliveryStatus == DeliveryStatus.READY) {
+            this.deliveryStatus = DeliveryStatus.IN_TRANSIT;
+        }
+        throw new RuntimeException("Delivery status can be changed from ready");
+    }
+
+    private void setDeliveryStatusToDone() {
+        if (this.deliveryStatus == DeliveryStatus.IN_TRANSIT) {
+            this.deliveryStatus = DeliveryStatus.DONE;
+        }
+        throw new RuntimeException("Delivery status can be changed from in transit");
+    }
+
+    private void setDeliveryStatusToCancel() {
+        if (this.deliveryStatus == DeliveryStatus.CREATED
+            || this.deliveryStatus == DeliveryStatus.READY) {
+            this.deliveryStatus = DeliveryStatus.CANCEL;
+        }
+        throw new RuntimeException("Delivery status can be changed from created or ready");
     }
 }

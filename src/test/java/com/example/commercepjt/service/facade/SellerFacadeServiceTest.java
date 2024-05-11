@@ -3,9 +3,16 @@ package com.example.commercepjt.service.facade;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.example.commercepjt.domain.Category;
+import com.example.commercepjt.domain.Item;
+import com.example.commercepjt.domain.ItemMargin;
+import com.example.commercepjt.domain.UserBuyer;
 import com.example.commercepjt.domain.UserSeller;
 import com.example.commercepjt.dto.response.ItemDto;
+import com.example.commercepjt.dto.response.OrderCreatedDto;
 import com.example.commercepjt.repository.CategoryRepository;
+import com.example.commercepjt.repository.ItemMarginRepository;
+import com.example.commercepjt.repository.ItemRepository;
+import com.example.commercepjt.repository.UserBuyerRepository;
 import com.example.commercepjt.repository.UserSellerRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -19,17 +26,36 @@ import org.springframework.test.context.ActiveProfiles;
 class SellerFacadeServiceTest {
 
     @Autowired
-    private SellerFacadeService service;
+    private SellerFacadeService sellerFacadeService;
+
+    @Autowired
+    private BuyerFacadeService buyerFacadeService;
 
     private static UserSeller userSeller;
     private static Category category;
 
+    private static Category category;
+    private static Item item;
+
+    private static UserBuyer userBuyer;
+
     @BeforeAll
     static void setUp(@Autowired UserSellerRepository userSellerRepository,
-        @Autowired CategoryRepository categoryRepository) {
+        @Autowired CategoryRepository categoryRepository,
+        @Autowired ItemMarginRepository itemMarginRepository,
+        @Autowired ItemRepository itemRepository,
+        @Autowired UserBuyerRepository userBuyerRepository
+    ) {
         userSeller = userSellerRepository.save(
             UserSeller.builder().nickName("seller").profit(0).build());
         category = categoryRepository.save(Category.builder().name("category").build());
+        ItemMargin itemMargin = itemMarginRepository.save(
+            ItemMargin.builder().marginRate("1.1").build());
+        item = itemRepository.save(
+            Item.builder().name("item").category(category).userSeller(userSeller)
+                .itemMargin(itemMargin).stockQuantity(100).build());
+        userBuyer = userBuyerRepository.save(
+            UserBuyer.builder().loginId("buyer-id").loginPassword("buyer-pwd").point(1000).build());
     }
 
     @DisplayName("상품 업로드가 성공하면, id 가 포함된 상품 dto 가 반환된다.")
@@ -46,8 +72,11 @@ class SellerFacadeServiceTest {
     @Test
     public void whenChangeDeliveryStatusToReady_thenReturnOrderStatus() throws Exception {
         //given
+        OrderCreatedDto orderCreatedDto = createOrder();
 
         //when
+        sellerFacadeService.changeProductDeliveryStatusToReady(userSeller.getId(),
+            orderCreatedDto.id());
 
         //then
     }
@@ -144,7 +173,13 @@ class SellerFacadeServiceTest {
     }
 
     private ItemDto createItem(String name, String description, int price, int stockQuantity) {
-        return service.uploadProduct(userSeller.getId(), category.getId(), name, description, price,
+        return sellerFacadeService.uploadProduct(userSeller.getId(), category.getId(), name,
+            description, price,
             stockQuantity);
+    }
+
+    private OrderCreatedDto createOrder() throws Exception {
+        buyerFacadeService.createItemOrderForBag(item.getId(), 10, userBuyer.getId());
+        return buyerFacadeService.createOrder(userBuyer.getId());
     }
 }

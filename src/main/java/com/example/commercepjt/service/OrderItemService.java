@@ -1,14 +1,17 @@
 package com.example.commercepjt.service;
 
+import com.example.commercepjt.common.enums.DeliveryStatus;
 import com.example.commercepjt.domain.OrderItem;
 import com.example.commercepjt.repository.OrderItemRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class OrderItemService {
 
     private final OrderItemRepository orderItemRepository;
@@ -25,5 +28,10 @@ public class OrderItemService {
         return orderItemRepository.findAllByUserBuyerId(buyerId);
     }
 
-
+    public OrderItem updateOrderItemDeliveryStatus(long orderItemId, long buyerId,
+        DeliveryStatus targetStatus) {
+        OrderItem item = orderItemRepository.findByIdAndUserBuyerId(orderItemId, buyerId);
+        item.setDeliveryStatus(targetStatus);
+        return item;
+    }
 }

@@ -4,10 +4,6 @@ import com.example.commercepjt.domain.OrderItem;
 
 /**
  * 상품 장바구니 추가 완료 응답
- *
- * @param id
- * @param itemDto
- * @param itemQuantity
  */
 public record OrderItemCompleteDto(
     Long id,

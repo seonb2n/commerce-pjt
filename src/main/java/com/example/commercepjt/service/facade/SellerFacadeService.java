@@ -1,13 +1,18 @@
 package com.example.commercepjt.service.facade;
 
+import com.example.commercepjt.common.enums.DeliveryStatus;
 import com.example.commercepjt.domain.Category;
 import com.example.commercepjt.domain.Item;
 import com.example.commercepjt.domain.ItemMargin;
+import com.example.commercepjt.domain.OrderItem;
 import com.example.commercepjt.domain.UserSeller;
 import com.example.commercepjt.dto.response.ItemDto;
+import com.example.commercepjt.dto.response.OrderItemProgressDto;
 import com.example.commercepjt.service.CategoryService;
 import com.example.commercepjt.service.ItemMarginService;
 import com.example.commercepjt.service.ItemService;
+import com.example.commercepjt.service.OrderItemService;
+import com.example.commercepjt.service.OrderService;
 import com.example.commercepjt.service.UserSellerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +27,8 @@ public class SellerFacadeService {
     private final CategoryService categoryService;
     private final ItemService itemService;
     private final ItemMarginService itemMarginService;
+    private final OrderService orderService;
+    private final OrderItemService orderItemService;
 
     private static final String MARGIN_RATE = "0.1";
 
@@ -61,28 +68,57 @@ public class SellerFacadeService {
     /**
      * 상품 배송 상태를 생성에서 준비로 변경할 수 있다.
      *
+     * @param sellerId
      * @param orderId
-     * @param deliveryStatus
+     * @return OrderItemProgressDto
      */
-    void changeProductDeliveryStatusToReady(long sellerId, long orderId) {
+    @Transactional
+    public OrderItemProgressDto changeProductDeliveryStatusToReady(long sellerId, long orderId) {
+        OrderItem order = orderItemService.updateOrderItemDeliveryStatus(orderId, sellerId,
+            DeliveryStatus.READY);
+        return new OrderItemProgressDto(order);
     }
 
     /**
      * 상품 배송 상태를 준비에서 배송으로 변경할 수 있다.
      *
+     * @param sellerId
      * @param orderId
-     * @param deliveryStatus
+     * @return OrderItemProgressDto
      */
-    void changeProductDeliveryStatusToTransit(long sellerId, long orderId) {
+    @Transactional
+    public OrderItemProgressDto changeProductDeliveryStatusToTransit(long sellerId, long orderId) {
+        OrderItem order = orderItemService.updateOrderItemDeliveryStatus(orderId, sellerId,
+            DeliveryStatus.IN_TRANSIT);
+        return new OrderItemProgressDto(order);
+    }
+
+    /**
+     * 상품 배송 상태를 배송 중에서 배송 완료로 변경할 수 있다.
+     *
+     * @param sellerId
+     * @param orderId
+     * @return OrderItemProgressDto
+     */
+    @Transactional
+    public OrderItemProgressDto changeProductDeliveryStatusToDone(long sellerId, long orderId) {
+        OrderItem order = orderItemService.updateOrderItemDeliveryStatus(orderId, sellerId,
+            DeliveryStatus.DONE);
+        return new OrderItemProgressDto(order);
     }
 
     /**
      * 상품 배송 상태를 주문 생성에서 주문 취소로 변경할 수 있다.
      *
+     * @param sellerId
      * @param orderId
-     * @param deliveryStatus
+     * @return OrderItemProgressDto
      */
-    void changeProductDeliveryStatusToCancel(long sellerId, long orderId) {
+    @Transactional
+    public OrderItemProgressDto changeProductDeliveryStatusToCancel(long sellerId, long orderId) {
+        OrderItem order = orderItemService.updateOrderItemDeliveryStatus(orderId, sellerId,
+            DeliveryStatus.CANCEL);
+        return new OrderItemProgressDto(order);
     }
 
     /**
