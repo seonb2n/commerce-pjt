@@ -43,9 +43,6 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
 
-    @Enumerated(EnumType.STRING)
-    private DeliveryStatus deliveryStatus;
-
     private int totalPrice;
 
     @Builder
@@ -53,11 +50,24 @@ public class Order extends BaseEntity {
         this.userBuyer = userBuyer;
         this.orderItemList = orderItemList;
         this.paymentStatus = paymentStatus;
-        this.deliveryStatus = DeliveryStatus.READY;
         int totalPrice = 0;
         for (OrderItem orderItem : orderItemList) {
             totalPrice += orderItem.getItemQuantity() * orderItem.getPurchasedItemPrice();
+            orderItem.setOrder(this);
         }
         this.totalPrice = totalPrice;
+    }
+
+    public DeliveryStatus getDeliveryStatus() {
+        if (orderItemList.isEmpty()) {
+            return DeliveryStatus.CREATED;
+        }
+        DeliveryStatus minStatus = orderItemList.get(0).getDeliveryStatus();
+        for (OrderItem item : orderItemList) {
+            if (item.getDeliveryStatus().compareTo(minStatus) < 0) {
+                minStatus = item.getDeliveryStatus();
+            }
+        }
+        return minStatus;
     }
 }

@@ -1,11 +1,20 @@
 package com.example.commercepjt.service.facade;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.example.commercepjt.common.enums.DeliveryStatus;
 import com.example.commercepjt.domain.Category;
+import com.example.commercepjt.domain.Item;
+import com.example.commercepjt.domain.ItemMargin;
+import com.example.commercepjt.domain.UserBuyer;
 import com.example.commercepjt.domain.UserSeller;
 import com.example.commercepjt.dto.response.ItemDto;
+import com.example.commercepjt.dto.response.OrderCreatedDto;
 import com.example.commercepjt.repository.CategoryRepository;
+import com.example.commercepjt.repository.ItemMarginRepository;
+import com.example.commercepjt.repository.ItemRepository;
+import com.example.commercepjt.repository.UserBuyerRepository;
 import com.example.commercepjt.repository.UserSellerRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -19,17 +28,35 @@ import org.springframework.test.context.ActiveProfiles;
 class SellerFacadeServiceTest {
 
     @Autowired
-    private SellerFacadeService service;
+    private SellerFacadeService sellerFacadeService;
+
+    @Autowired
+    private BuyerFacadeService buyerFacadeService;
 
     private static UserSeller userSeller;
     private static Category category;
 
+    private static Item item;
+
+    private static UserBuyer userBuyer;
+
     @BeforeAll
     static void setUp(@Autowired UserSellerRepository userSellerRepository,
-        @Autowired CategoryRepository categoryRepository) {
+        @Autowired CategoryRepository categoryRepository,
+        @Autowired ItemMarginRepository itemMarginRepository,
+        @Autowired ItemRepository itemRepository,
+        @Autowired UserBuyerRepository userBuyerRepository
+    ) {
         userSeller = userSellerRepository.save(
             UserSeller.builder().nickName("seller").profit(0).build());
         category = categoryRepository.save(Category.builder().name("category").build());
+        ItemMargin itemMargin = itemMarginRepository.save(
+            ItemMargin.builder().marginRate("1.1").build());
+        item = itemRepository.save(
+            Item.builder().name("item").category(category).userSeller(userSeller)
+                .itemMargin(itemMargin).stockQuantity(100).build());
+        userBuyer = userBuyerRepository.save(
+            UserBuyer.builder().loginId("buyer-id").loginPassword("buyer-pwd").point(1000).build());
     }
 
     @DisplayName("상품 업로드가 성공하면, id 가 포함된 상품 dto 가 반환된다.")
@@ -42,34 +69,85 @@ class SellerFacadeServiceTest {
         assertEquals(userSeller.getNickName(), responseDto.userSellerName());
     }
 
-    @DisplayName("배송 상태를 취소로 변경하면, 재고가 추가되고, 환불 절차에 들어간다.")
+    @DisplayName("주문이 생성되면, 판매자는 배송 준비로 상태를 변경할 수 있다.")
     @Test
-    public void whenChangeOrderStatus_thenRollbackOrder() throws Exception {
+    public void whenChangeDeliveryStatusToReady_thenReturnOrderStatus() throws Exception {
         //given
+        OrderCreatedDto orderCreatedDto = createOrder();
 
         //when
+        sellerFacadeService.changeProductDeliveryStatusToReady(userSeller.getId(),
+            orderCreatedDto.orderItemCompleteDtoList().get(0).id());
 
         //then
+        var nowOrder = buyerFacadeService.checkProductOrderStatus(orderCreatedDto.id());
+        assertEquals(DeliveryStatus.READY, nowOrder.deliveryStatus());
     }
 
-    @DisplayName("배송중인 경우에는 주문 상태를 변경할 수 없다.")
+    @DisplayName("준비중인 주문을, 판매자는 배송 중 상태로 변경할 수 있다.")
+    @Test
+    public void whenChangeDeliveryStatusToTransit_thenReturnOrderStatus() throws Exception {
+        //given
+        OrderCreatedDto orderCreatedDto = createOrder();
+        sellerFacadeService.changeProductDeliveryStatusToReady(userSeller.getId(),
+            orderCreatedDto.orderItemCompleteDtoList().get(0).id());
+
+        //when
+        sellerFacadeService.changeProductDeliveryStatusToTransit(userSeller.getId(),
+            orderCreatedDto.orderItemCompleteDtoList().get(0).id());
+
+        //then
+        var nowOrder = buyerFacadeService.checkProductOrderStatus(orderCreatedDto.id());
+        assertEquals(DeliveryStatus.IN_TRANSIT, nowOrder.deliveryStatus());
+    }
+
+    @DisplayName("준비중인 주문을 판매자는 취소 상태로 변경할 수 있다")
+    @Test
+    public void whenChangeDeliveryStatusToCancelFromReady_thenReturnOrderStatus() throws Exception {
+        //given
+        OrderCreatedDto orderCreatedDto = createOrder();
+        sellerFacadeService.changeProductDeliveryStatusToReady(userSeller.getId(),
+            orderCreatedDto.orderItemCompleteDtoList().get(0).id());
+
+        //when
+        sellerFacadeService.changeProductDeliveryStatusToCancel(userSeller.getId(),
+            orderCreatedDto.orderItemCompleteDtoList().get(0).id());
+
+        //then
+        var nowOrder = buyerFacadeService.checkProductOrderStatus(orderCreatedDto.id());
+        assertEquals(DeliveryStatus.CANCEL, nowOrder.deliveryStatus());
+    }
+
+    @DisplayName("생성된 주문을, 판매자는 취소 상태로 변경할 수 있다.")
+    @Test
+    public void whenChangeDeliveryStatusToCancelFromCreated_thenReturnOrderStatus()
+        throws Exception {
+        //given
+        OrderCreatedDto orderCreatedDto = createOrder();
+
+        //when
+        sellerFacadeService.changeProductDeliveryStatusToCancel(userSeller.getId(),
+            orderCreatedDto.orderItemCompleteDtoList().get(0).id());
+
+        //then
+        var nowOrder = buyerFacadeService.checkProductOrderStatus(orderCreatedDto.id());
+        assertEquals(DeliveryStatus.CANCEL, nowOrder.deliveryStatus());
+    }
+
+    @DisplayName("배송중인 경우에는 주문 상태를 취소로 변경할 수 없다.")
     @Test
     public void whenOrderIsShipping_thenCannotChangeOrderStatus() throws Exception {
         //given
+        OrderCreatedDto orderCreatedDto = createOrder();
+        sellerFacadeService.changeProductDeliveryStatusToReady(userSeller.getId(),
+            orderCreatedDto.orderItemCompleteDtoList().get(0).id());
+        sellerFacadeService.changeProductDeliveryStatusToTransit(userSeller.getId(),
+            orderCreatedDto.orderItemCompleteDtoList().get(0).id());
 
-        //when
-
-        //then
-    }
-
-    @DisplayName("배송 완료된 경우에는 주문 상태를 변경할 수 없다.")
-    @Test
-    public void whenOrderIsComplete_thenCannotChangeOrderStatus() throws Exception {
-        //given
-
-        //when
-
-        //then
+        //when & then
+        assertThrows(RuntimeException.class,
+            () -> sellerFacadeService.changeProductDeliveryStatusToCancel(userSeller.getId(),
+                orderCreatedDto.orderItemCompleteDtoList().get(0).id()));
     }
 
     @DisplayName("상품 판매를 중단하면, 해당 상품의 상태는 판매 중지가 된다.")
@@ -113,7 +191,13 @@ class SellerFacadeServiceTest {
     }
 
     private ItemDto createItem(String name, String description, int price, int stockQuantity) {
-        return service.uploadProduct(userSeller.getId(), category.getId(), name, description, price,
+        return sellerFacadeService.uploadProduct(userSeller.getId(), category.getId(), name,
+            description, price,
             stockQuantity);
+    }
+
+    private OrderCreatedDto createOrder() throws Exception {
+        buyerFacadeService.createItemOrderForBag(item.getId(), 10, userBuyer.getId());
+        return buyerFacadeService.createOrder(userBuyer.getId());
     }
 }
