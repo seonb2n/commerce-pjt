@@ -69,6 +69,7 @@ public class OrderItem extends BaseEntity {
     private void setDeliveryStatusToReady() {
         if (this.deliveryStatus == DeliveryStatus.CREATED) {
             this.deliveryStatus = DeliveryStatus.READY;
+            return;
         }
         throw new RuntimeException("Delivery status can be changed from created");
     }
@@ -76,6 +77,7 @@ public class OrderItem extends BaseEntity {
     private void setDeliveryStatusToInTransit() {
         if (this.deliveryStatus == DeliveryStatus.READY) {
             this.deliveryStatus = DeliveryStatus.IN_TRANSIT;
+            return;
         }
         throw new RuntimeException("Delivery status can be changed from ready");
     }
@@ -83,6 +85,7 @@ public class OrderItem extends BaseEntity {
     private void setDeliveryStatusToDone() {
         if (this.deliveryStatus == DeliveryStatus.IN_TRANSIT) {
             this.deliveryStatus = DeliveryStatus.DONE;
+            return;
         }
         throw new RuntimeException("Delivery status can be changed from in transit");
     }
@@ -91,6 +94,7 @@ public class OrderItem extends BaseEntity {
         if (this.deliveryStatus == DeliveryStatus.CREATED
             || this.deliveryStatus == DeliveryStatus.READY) {
             this.deliveryStatus = DeliveryStatus.CANCEL;
+            return;
         }
         throw new RuntimeException("Delivery status can be changed from created or ready");
     }

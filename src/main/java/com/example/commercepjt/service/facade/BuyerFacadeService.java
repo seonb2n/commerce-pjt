@@ -7,6 +7,7 @@ import com.example.commercepjt.domain.OrderItem;
 import com.example.commercepjt.domain.UserBuyer;
 import com.example.commercepjt.dto.response.OrderCreatedDto;
 import com.example.commercepjt.dto.response.OrderItemCreatedDto;
+import com.example.commercepjt.dto.response.OrderProgressDto;
 import com.example.commercepjt.service.ItemService;
 import com.example.commercepjt.service.OrderItemService;
 import com.example.commercepjt.service.OrderService;
@@ -63,7 +64,7 @@ public class BuyerFacadeService {
     /**
      * 장바구니에 담긴 상품을 주문한다.
      * todo 주문이 생성 된 후, 결제가 진행된다.
-     *
+     * todo 장바구니에 담긴 주문 중 개별 결제가 가능하도록 변경 필요
      * @param buyerId
      * @return
      */
@@ -122,7 +123,9 @@ public class BuyerFacadeService {
      *
      * @param orderId
      */
-    void checkProductOrderStatus(long orderId) {
+    public OrderProgressDto checkProductOrderStatus(long orderId) {
+        Order order = orderService.getOrderById(orderId);
+        return new OrderProgressDto(order);
     }
 
     /**

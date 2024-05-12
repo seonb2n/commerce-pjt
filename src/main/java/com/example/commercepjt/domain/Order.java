@@ -53,6 +53,7 @@ public class Order extends BaseEntity {
         int totalPrice = 0;
         for (OrderItem orderItem : orderItemList) {
             totalPrice += orderItem.getItemQuantity() * orderItem.getPurchasedItemPrice();
+            orderItem.setOrder(this);
         }
         this.totalPrice = totalPrice;
     }

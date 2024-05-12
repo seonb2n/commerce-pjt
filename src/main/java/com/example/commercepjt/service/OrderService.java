@@ -2,6 +2,7 @@ package com.example.commercepjt.service;
 
 import com.example.commercepjt.domain.Order;
 import com.example.commercepjt.repository.OrderRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,5 +14,9 @@ public class OrderService {
 
     public Order save(Order order) {
         return orderRepository.save(order);
+    }
+
+    public Order getOrderById(long orderId) {
+        return orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
     }
 }

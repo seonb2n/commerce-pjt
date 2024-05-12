@@ -69,14 +69,15 @@ public class SellerFacadeService {
      * 상품 배송 상태를 생성에서 준비로 변경할 수 있다.
      *
      * @param sellerId
-     * @param orderId
+     * @param orderItemId
      * @return OrderItemProgressDto
      */
     @Transactional
-    public OrderItemProgressDto changeProductDeliveryStatusToReady(long sellerId, long orderId) {
-        OrderItem order = orderItemService.updateOrderItemDeliveryStatus(orderId, sellerId,
+    public OrderItemProgressDto changeProductDeliveryStatusToReady(long sellerId,
+        long orderItemId) {
+        OrderItem orderItem = orderItemService.updateOrderItemDeliveryStatus(orderItemId, sellerId,
             DeliveryStatus.READY);
-        return new OrderItemProgressDto(order);
+        return new OrderItemProgressDto(orderItem);
     }
 
     /**
