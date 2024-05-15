@@ -94,6 +94,7 @@ public class OrderItem extends BaseEntity {
         if (this.deliveryStatus == DeliveryStatus.CREATED
             || this.deliveryStatus == DeliveryStatus.READY) {
             this.deliveryStatus = DeliveryStatus.CANCEL;
+            this.getItem().addStockQuantity(this.itemQuantity); // 주문이 취소되면 상품 재고를 원복한다.
             return;
         }
         throw new RuntimeException("Delivery status can be changed from created or ready");

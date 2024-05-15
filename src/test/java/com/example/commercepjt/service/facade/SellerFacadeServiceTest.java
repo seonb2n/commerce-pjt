@@ -39,6 +39,8 @@ class SellerFacadeServiceTest {
     private static Item item;
 
     private static UserBuyer userBuyer;
+    @Autowired
+    private ItemRepository itemRepository;
 
     @BeforeAll
     static void setUp(@Autowired UserSellerRepository userSellerRepository,
@@ -53,7 +55,7 @@ class SellerFacadeServiceTest {
         ItemMargin itemMargin = itemMarginRepository.save(
             ItemMargin.builder().marginRate("1.1").build());
         item = itemRepository.save(
-            Item.builder().name("item").category(category).userSeller(userSeller)
+            Item.builder().name("item").category(category).userSeller(userSeller).price(1000)
                 .itemMargin(itemMargin).stockQuantity(100).build());
         userBuyer = userBuyerRepository.save(
             UserBuyer.builder().loginId("buyer-id").loginPassword("buyer-pwd").point(1000).build());
@@ -73,6 +75,7 @@ class SellerFacadeServiceTest {
     @Test
     public void whenChangeDeliveryStatusToReady_thenReturnOrderStatus() throws Exception {
         //given
+        int originStockQuantity = item.getStockQuantity();
         OrderCreatedDto orderCreatedDto = createOrder();
 
         //when
@@ -82,6 +85,8 @@ class SellerFacadeServiceTest {
         //then
         var nowOrder = buyerFacadeService.checkProductOrderStatus(orderCreatedDto.id());
         assertEquals(DeliveryStatus.READY, nowOrder.deliveryStatus());
+        assertEquals(originStockQuantity - 10,
+            itemRepository.findById(1L).get().getStockQuantity());
     }
 
     @DisplayName("준비중인 주문을, 판매자는 배송 중 상태로 변경할 수 있다.")
@@ -106,6 +111,7 @@ class SellerFacadeServiceTest {
     public void whenChangeDeliveryStatusToCancelFromReady_thenReturnOrderStatus() throws Exception {
         //given
         OrderCreatedDto orderCreatedDto = createOrder();
+        int originStockQuantity = itemRepository.findById(1L).get().getStockQuantity();
         sellerFacadeService.changeProductDeliveryStatusToReady(userSeller.getId(),
             orderCreatedDto.orderItemCompleteDtoList().get(0).id());
 
@@ -116,6 +122,8 @@ class SellerFacadeServiceTest {
         //then
         var nowOrder = buyerFacadeService.checkProductOrderStatus(orderCreatedDto.id());
         assertEquals(DeliveryStatus.CANCEL, nowOrder.deliveryStatus());
+        assertEquals(originStockQuantity + 10,
+            itemRepository.findById(1L).get().getStockQuantity());
     }
 
     @DisplayName("생성된 주문을, 판매자는 취소 상태로 변경할 수 있다.")

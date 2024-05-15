@@ -74,9 +74,10 @@ public class BuyerFacadeService {
         List<OrderItem> orderItemList = orderItemService.findAllItemsByBuyerId(buyerId);
 
         for (OrderItem orderItem : orderItemList) {
+            Item item = orderItem.getItem();
             orderItem.setPurchasedItemPrice(
-                orderItem.getItem().getPrice() * orderItem.getItemQuantity());
-            orderItem.getItem().minusStockQuantity(orderItem.getItemQuantity());
+                item.getPrice() * orderItem.getItemQuantity());
+            item.minusStockQuantity(orderItem.getItemQuantity());
         }
 
         Order order = Order.builder().userBuyer(buyer).orderItemList(orderItemList).paymentStatus(
