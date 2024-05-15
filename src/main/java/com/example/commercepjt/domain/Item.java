@@ -79,4 +79,8 @@ public class Item extends BaseEntity {
             throw new Exception("상품 수량이 주문량보다 적습니다.");
         }
     }
+
+    public void addStockQuantity(int orderQuantity) {
+        this.stockQuantity += orderQuantity;
+    }
 }
