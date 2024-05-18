@@ -1,5 +1,6 @@
 package com.example.commercepjt.service.facade;
 
+import com.example.commercepjt.common.enums.DeliveryStatus;
 import com.example.commercepjt.common.enums.PaymentStatus;
 import com.example.commercepjt.domain.Item;
 import com.example.commercepjt.domain.Order;
@@ -55,7 +56,7 @@ public class BuyerFacadeService {
      * @return
      */
     public List<OrderItemCreatedDto> getOrderItemListInBag(long buyerId) {
-        List<OrderItem> foundOrderItems = orderItemService.findAllItemsByBuyerId(buyerId);
+        List<OrderItem> foundOrderItems = orderItemService.findAllItemsByBuyerIdAndStatusIsInBag(buyerId);
 
         return foundOrderItems.stream().map(OrderItemCreatedDto::new).collect(
             Collectors.toList());
@@ -71,13 +72,14 @@ public class BuyerFacadeService {
     @Transactional
     public OrderCreatedDto createOrder(long buyerId) throws Exception {
         UserBuyer buyer = userBuyerService.getUserBuyerById(buyerId);
-        List<OrderItem> orderItemList = orderItemService.findAllItemsByBuyerId(buyerId);
+        List<OrderItem> orderItemList = orderItemService.findAllItemsByBuyerIdAndStatusIsInBag(buyerId);
 
         for (OrderItem orderItem : orderItemList) {
             Item item = orderItem.getItem();
             orderItem.setPurchasedItemPrice(
                 item.getPrice() * orderItem.getItemQuantity());
             item.minusStockQuantity(orderItem.getItemQuantity());
+            orderItem.setDeliveryStatus(DeliveryStatus.CREATED);
         }
 
         Order order = Order.builder().userBuyer(buyer).orderItemList(orderItemList).paymentStatus(

@@ -24,8 +24,8 @@ public class OrderItemService {
         return orderItemRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-    public List<OrderItem> findAllItemsByBuyerId(long buyerId) {
-        return orderItemRepository.findAllByUserBuyerId(buyerId);
+    public List<OrderItem> findAllItemsByBuyerIdAndStatusIsInBag(long buyerId) {
+        return orderItemRepository.findAllByUserBuyerIdAndDeliveryStatus(buyerId, DeliveryStatus.IN_BAG);
     }
 
     public OrderItem updateOrderItemDeliveryStatus(long orderItemId, long buyerId,

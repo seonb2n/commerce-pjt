@@ -11,6 +11,7 @@ import com.example.commercepjt.domain.UserBuyer;
 import com.example.commercepjt.domain.UserSeller;
 import com.example.commercepjt.dto.response.ItemDto;
 import com.example.commercepjt.dto.response.OrderCreatedDto;
+import com.example.commercepjt.dto.response.OrderItemCreatedDto;
 import com.example.commercepjt.repository.CategoryRepository;
 import com.example.commercepjt.repository.ItemMarginRepository;
 import com.example.commercepjt.repository.ItemRepository;
@@ -56,7 +57,7 @@ class SellerFacadeServiceTest {
             ItemMargin.builder().marginRate("1.1").build());
         item = itemRepository.save(
             Item.builder().name("item").category(category).userSeller(userSeller).price(1000)
-                .itemMargin(itemMargin).stockQuantity(100).build());
+                .itemMargin(itemMargin).stockQuantity(1000).build());
         userBuyer = userBuyerRepository.save(
             UserBuyer.builder().loginId("buyer-id").loginPassword("buyer-pwd").point(1000).build());
     }
@@ -75,7 +76,7 @@ class SellerFacadeServiceTest {
     @Test
     public void whenChangeDeliveryStatusToReady_thenReturnOrderStatus() throws Exception {
         //given
-        int originStockQuantity = item.getStockQuantity();
+        int originStockQuantity = itemRepository.findById(1L).get().getStockQuantity();
         OrderCreatedDto orderCreatedDto = createOrder();
 
         //when

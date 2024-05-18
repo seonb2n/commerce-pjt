@@ -54,16 +54,25 @@ public class OrderItem extends BaseEntity {
         this.order = order;
         this.itemQuantity = itemQuantity;
         this.purchasedItemPrice = purchasedItemPrice;
-        this.deliveryStatus = DeliveryStatus.CREATED;
+        this.deliveryStatus = DeliveryStatus.IN_BAG;
     }
 
     public void setDeliveryStatus(DeliveryStatus deliveryStatus) {
         switch (deliveryStatus) {
+            case CREATED -> this.setDeliveryStatusToCreated();
             case READY -> this.setDeliveryStatusToReady();
             case IN_TRANSIT -> this.setDeliveryStatusToInTransit();
             case DONE -> this.setDeliveryStatusToDone();
             case CANCEL -> this.setDeliveryStatusToCancel();
         }
+    }
+
+    private void setDeliveryStatusToCreated() {
+        if (this.deliveryStatus == DeliveryStatus.IN_BAG) {
+            this.deliveryStatus = DeliveryStatus.CREATED;
+            return;
+        }
+        throw new RuntimeException("Delivery status can be changed from in_bag");
     }
 
     private void setDeliveryStatusToReady() {
