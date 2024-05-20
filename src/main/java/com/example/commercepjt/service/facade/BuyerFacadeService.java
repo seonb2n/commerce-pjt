@@ -63,6 +63,16 @@ public class BuyerFacadeService {
     }
 
     /**
+     * 장바구니에 있는 상품을 모두 제거한다.
+     * @param buyerId
+     * @return
+     */
+    @Transactional
+    public int clearItemListInBag(long buyerId) {
+        return orderItemService.clearAllItemsInBag(buyerId);
+    }
+
+    /**
      * 장바구니에 담긴 상품을 주문한다.
      * todo 주문이 생성 된 후, 결제가 진행된다.
      * todo 장바구니에 담긴 주문 중 개별 결제가 가능하도록 변경 필요

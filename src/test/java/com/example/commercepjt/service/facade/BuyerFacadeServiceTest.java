@@ -2,6 +2,7 @@ package com.example.commercepjt.service.facade;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.example.commercepjt.domain.Category;
 import com.example.commercepjt.domain.Item;
@@ -74,9 +75,27 @@ class BuyerFacadeServiceTest {
         assertEquals(1, myBag.size());
     }
 
+    @DisplayName("장바구니에 담긴 상품들을 제거할 수 있다.")
+    @Test
+    public void givenItemsInBag_whenClearItemsInBag() throws Exception {
+        //given
+        service.createItemOrderForBag(item.getId(), 10, userBuyer.getId());
+
+
+        //when
+        service.clearItemListInBag(userBuyer.getId());
+        var myBag = service.getOrderItemListInBag(userBuyer.getId());
+
+        //then
+        assertEquals(0, myBag.size());
+    }
+
     @DisplayName("장바구니에 담긴 상품들로 주문을 할 수 있다.")
     @Test
     public void whenUsingOrderItemsInBag_thenCreateOrder() throws Exception {
+        //given
+        service.clearItemListInBag(userBuyer.getId());
+
         //when
         var response = service.createItemOrderForBag(item.getId(), 10, userBuyer.getId());
         var myBag = service.getOrderItemListInBag(userBuyer.getId());

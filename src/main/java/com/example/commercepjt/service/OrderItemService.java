@@ -28,6 +28,10 @@ public class OrderItemService {
         return orderItemRepository.findAllByUserBuyerIdAndDeliveryStatus(buyerId, DeliveryStatus.IN_BAG);
     }
 
+    public int clearAllItemsInBag(long buyerId) {
+        return orderItemRepository.deleteAllByUserBuyerIdAndDeliveryStatus(buyerId, DeliveryStatus.IN_BAG);
+    }
+
     public OrderItem updateOrderItemDeliveryStatus(long orderItemId, long buyerId,
         DeliveryStatus targetStatus) {
         OrderItem item = orderItemRepository.findByIdAndUserBuyerId(orderItemId, buyerId);

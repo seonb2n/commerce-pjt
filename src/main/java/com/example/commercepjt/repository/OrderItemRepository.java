@@ -11,5 +11,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     @EntityGraph(attributePaths = {"item"})
     List<OrderItem> findAllByUserBuyerIdAndDeliveryStatus(Long userBuyerId, DeliveryStatus deliveryStatus);
 
+    int deleteAllByUserBuyerIdAndDeliveryStatus(Long userBuyerId, DeliveryStatus deliveryStatus);
+
     OrderItem findByIdAndUserBuyerId(Long id, Long userBuyerId);
 }
