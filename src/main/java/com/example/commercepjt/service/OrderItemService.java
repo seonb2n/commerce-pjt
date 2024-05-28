@@ -25,11 +25,13 @@ public class OrderItemService {
     }
 
     public List<OrderItem> findAllItemsByBuyerIdAndStatusIsInBag(long buyerId) {
-        return orderItemRepository.findAllByUserBuyerIdAndDeliveryStatus(buyerId, DeliveryStatus.IN_BAG);
+        return orderItemRepository.findAllByUserBuyerIdAndDeliveryStatus(buyerId,
+            DeliveryStatus.IN_BAG);
     }
 
     public int clearAllItemsInBag(long buyerId) {
-        return orderItemRepository.deleteAllByUserBuyerIdAndDeliveryStatus(buyerId, DeliveryStatus.IN_BAG);
+        return orderItemRepository.deleteAllByUserBuyerIdAndDeliveryStatus(buyerId,
+            DeliveryStatus.IN_BAG);
     }
 
     public OrderItem updateOrderItemDeliveryStatus(long orderItemId, long buyerId,
@@ -37,5 +39,13 @@ public class OrderItemService {
         OrderItem item = orderItemRepository.findByIdAndUserBuyerId(orderItemId, buyerId);
         item.setDeliveryStatus(targetStatus);
         return item;
+    }
+
+    public int getOrderItemPurchasedPriceSummary(long sellerId) {
+        List<OrderItem> orderItemList = orderItemRepository.findAllBySellerId(sellerId);
+        List<OrderItem> soldOrderItemList = orderItemList.stream()
+            .filter((orderItem -> orderItem.getOrder().getDeliveryStatus() == DeliveryStatus.DONE))
+            .toList();
+        return soldOrderItemList.stream().mapToInt(OrderItem::getPurchasedItemPrice).sum();
     }
 }

@@ -14,6 +14,7 @@ import com.example.commercepjt.service.ItemService;
 import com.example.commercepjt.service.OrderItemService;
 import com.example.commercepjt.service.OrderService;
 import com.example.commercepjt.service.UserSellerService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -125,17 +126,25 @@ public class SellerFacadeService {
     /**
      * 상품 판매를 중단할 수 있다.
      *
+     * @param sellerId
      * @param itemId
      */
-    void setProductStopSelling(long sellerId, long itemId) {
+    @Transactional
+    public ItemDto setProductStopSelling(long sellerId, long itemId) {
+        Item item = itemService.changeItemStatusToNotSelling(sellerId, itemId);
+        return new ItemDto(item);
     }
 
     /**
      * 상품 판매를 재개할 수 있다.
      *
+     * @param sellerId
      * @param itemId
      */
-    void setProductSelling(long sellerId, long itemId) {
+    @Transactional
+    public ItemDto setProductSelling(long sellerId, long itemId) {
+        Item item = itemService.changeItemStatusToSelling(sellerId, itemId);
+        return new ItemDto(item);
     }
 
     /**
@@ -143,7 +152,10 @@ public class SellerFacadeService {
      *
      * @param sellerId
      */
-    void getMySellingProductList(long sellerId) {
+    public List<ItemDto> getMySellingProductList(long sellerId) {
+        UserSeller seller = userSellerService.getUserSellerById(sellerId);
+        List<Item> itemList = itemService.findItemsBySellerIdAndIsSelling(sellerId);
+        return itemList.stream().map((item -> new ItemDto(item, seller.getNickName()))).toList();
     }
 
     /**
@@ -151,6 +163,7 @@ public class SellerFacadeService {
      *
      * @param sellerId
      */
-    void getMySellingProductTotalIncome(long sellerId) {
+    public int getMySellingProductTotalIncome(long sellerId) {
+        return orderItemService.getOrderItemPurchasedPriceSummary(sellerId);
     }
 }
