@@ -15,4 +15,9 @@ public record ItemDto(
         this(entity.getId(), sellerName, entity.getName(), entity.getDescription(),
             entity.getPrice(), entity.isSelling());
     }
+
+    public ItemDto(Item entity) {
+        this(entity.getId(), null, entity.getName(), entity.getDescription(),
+            entity.getPrice(), entity.isSelling());
+    }
 }

@@ -1,7 +1,9 @@
 package com.example.commercepjt.service.facade;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.commercepjt.common.enums.DeliveryStatus;
 import com.example.commercepjt.domain.Category;
@@ -57,6 +59,7 @@ class SellerFacadeServiceTest {
             ItemMargin.builder().marginRate("1.1").build());
         item = itemRepository.save(
             Item.builder().name("item").category(category).userSeller(userSeller).price(1000)
+                .isSelling(true)
                 .itemMargin(itemMargin).stockQuantity(1000).build());
         userBuyer = userBuyerRepository.save(
             UserBuyer.builder().loginId("buyer-id").loginPassword("buyer-pwd").point(1000).build());
@@ -162,41 +165,50 @@ class SellerFacadeServiceTest {
     @DisplayName("상품 판매를 중단하면, 해당 상품의 상태는 판매 중지가 된다.")
     @Test
     public void whenStopSelling_thenChangeItemStatus() throws Exception {
-        //given
-
         //when
+        sellerFacadeService.setProductStopSelling(userSeller.getId(), item.getId());
 
         //then
+        assertFalse(itemRepository.findById(item.getId()).get().isSelling());
     }
 
     @DisplayName("상품 판매를 재개하면, 해당 상품의 상태는 판매가 된다.")
     @Test
     public void whenResumeSelling_thenChangeItemStatus() throws Exception {
-        //given
-
         //when
+        sellerFacadeService.setProductSelling(userSeller.getId(), item.getId());
 
         //then
+        assertTrue(itemRepository.findById(item.getId()).get().isSelling());
     }
 
     @DisplayName("자신이 판매 중인 상품 목록을 조회할 수 있다.")
     @Test
     public void whenFindMyItems_thenReturnItemsList() throws Exception {
-        //given
-
         //when
+        var sellingItemList = sellerFacadeService.getMySellingProductList(userSeller.getId());
 
         //then
+        assertEquals(1, sellingItemList.size());
     }
 
     @DisplayName("n 건의 주문이 발생하고, 배송이 완료되면 판매자의 총 수익은 n * 상품 가격이다.")
     @Test
     public void whenOrdersAndCompleteShipping_thenGotProfits() throws Exception {
         //given
+        OrderCreatedDto orderCreatedDto = createOrder();
+        sellerFacadeService.changeProductDeliveryStatusToReady(userSeller.getId(),
+            orderCreatedDto.orderItemCompleteDtoList().get(0).id());
+        sellerFacadeService.changeProductDeliveryStatusToTransit(userSeller.getId(),
+            orderCreatedDto.orderItemCompleteDtoList().get(0).id());
+        sellerFacadeService.changeProductDeliveryStatusToDone(userSeller.getId(),
+            orderCreatedDto.orderItemCompleteDtoList().get(0).id());
 
         //when
+        var income = sellerFacadeService.getMySellingProductTotalIncome(userSeller.getId());
 
         //then
+        assertEquals(11000, income);
     }
 
     private ItemDto createItem(String name, String description, int price, int stockQuantity) {
