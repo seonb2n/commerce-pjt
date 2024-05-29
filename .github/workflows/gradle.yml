@@ -1,0 +1,50 @@
+# workflow의 이름을 정의한다.
+name: 'test-master'
+
+# workflow가 언제 동작할지 정의한다.
+# 이 workflow의 경우 master branch에 push 또는 pull_request 이벤트가 발생할 경우 동작한다.
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+      # gradle build 진행 시 실행 가능한 파일이 아니라는 에러를 띄우며 fail이 나기 때문에 실행 권한을 줘야 한다.
+    - name: Add executable permission to gradlew
+      run: chmod +x ./gradlew
+
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+
+    - name: Cache Gradle dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Build with Gradle
+      run: ./gradlew build
+
+    - name: Run tests with Gradle
+      run: ./gradlew test
