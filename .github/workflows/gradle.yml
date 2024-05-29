@@ -26,6 +26,10 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+      # gradle build 진행 시 실행 가능한 파일이 아니라는 에러를 띄우며 fail이 나기 때문에 실행 권한을 줘야 한다.
+    - name: Add executable permission to gradlew
+      run: chmod +x ./gradlew
+
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
 
