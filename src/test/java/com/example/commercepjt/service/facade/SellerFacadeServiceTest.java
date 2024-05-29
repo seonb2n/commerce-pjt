@@ -13,21 +13,22 @@ import com.example.commercepjt.domain.UserBuyer;
 import com.example.commercepjt.domain.UserSeller;
 import com.example.commercepjt.dto.response.ItemDto;
 import com.example.commercepjt.dto.response.OrderCreatedDto;
-import com.example.commercepjt.dto.response.OrderItemCreatedDto;
 import com.example.commercepjt.repository.CategoryRepository;
 import com.example.commercepjt.repository.ItemMarginRepository;
 import com.example.commercepjt.repository.ItemRepository;
 import com.example.commercepjt.repository.UserBuyerRepository;
 import com.example.commercepjt.repository.UserSellerRepository;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class SellerFacadeServiceTest {
 
     @Autowired
@@ -45,8 +46,8 @@ class SellerFacadeServiceTest {
     @Autowired
     private ItemRepository itemRepository;
 
-    @BeforeAll
-    static void setUp(@Autowired UserSellerRepository userSellerRepository,
+    @BeforeEach
+    void setUp(@Autowired UserSellerRepository userSellerRepository,
         @Autowired CategoryRepository categoryRepository,
         @Autowired ItemMarginRepository itemMarginRepository,
         @Autowired ItemRepository itemRepository,
