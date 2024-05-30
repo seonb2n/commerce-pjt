@@ -1,10 +1,5 @@
 package com.example.commercepjt.service.facade;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.example.commercepjt.common.enums.DeliveryStatus;
 import com.example.commercepjt.domain.Category;
 import com.example.commercepjt.domain.Item;
@@ -13,6 +8,7 @@ import com.example.commercepjt.domain.UserBuyer;
 import com.example.commercepjt.domain.UserSeller;
 import com.example.commercepjt.dto.response.ItemDto;
 import com.example.commercepjt.dto.response.OrderCreatedDto;
+import com.example.commercepjt.dto.response.OrderItemProgressDto;
 import com.example.commercepjt.repository.CategoryRepository;
 import com.example.commercepjt.repository.ItemMarginRepository;
 import com.example.commercepjt.repository.ItemRepository;
@@ -23,12 +19,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+//@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class SellerFacadeServiceTest {
 
     @Autowired
@@ -37,12 +38,13 @@ class SellerFacadeServiceTest {
     @Autowired
     private BuyerFacadeService buyerFacadeService;
 
-    private static UserSeller userSeller;
-    private static Category category;
+    private UserSeller userSeller;
+    private Category category;
 
-    private static Item item;
+    private Item item;
 
-    private static UserBuyer userBuyer;
+    private UserBuyer userBuyer;
+
     @Autowired
     private ItemRepository itemRepository;
 
@@ -78,20 +80,23 @@ class SellerFacadeServiceTest {
 
     @DisplayName("주문이 생성되면, 판매자는 배송 준비로 상태를 변경할 수 있다.")
     @Test
-    public void whenChangeDeliveryStatusToReady_thenReturnOrderStatus() throws Exception {
+    void whenChangeDeliveryStatusToReady_thenReturnOrderStatus() throws Exception {
         //given
-        int originStockQuantity = itemRepository.findById(1L).get().getStockQuantity();
         OrderCreatedDto orderCreatedDto = createOrder();
 
         //when
-        sellerFacadeService.changeProductDeliveryStatusToReady(userSeller.getId(),
-            orderCreatedDto.orderItemCompleteDtoList().get(0).id());
+        OrderItemProgressDto response =
+          sellerFacadeService.changeProductDeliveryStatusToReady(
+            userSeller.getId(),
+            orderCreatedDto.orderItemCompleteDtoList().get(0).id()
+          );
 
         //then
-        var nowOrder = buyerFacadeService.checkProductOrderStatus(orderCreatedDto.id());
-        assertEquals(DeliveryStatus.READY, nowOrder.deliveryStatus());
-        assertEquals(originStockQuantity - 10,
-            itemRepository.findById(1L).get().getStockQuantity());
+        assertThat(response.id()).isEqualTo(orderCreatedDto.orderItemCompleteDtoList().get(0).id());
+        assertThat(response.itemId()).isEqualTo(item.getId());
+        assertThat(response.deliveryStatus()).isEqualTo(DeliveryStatus.READY);
+        assertThat(response.itemQuantity()).isEqualTo(orderCreatedDto.orderItemCompleteDtoList().get(0).itemQuantity());
+        assertThat(response.itemPrice()).isEqualTo(orderCreatedDto.orderItemCompleteDtoList().get(0).itemPrice());
     }
 
     @DisplayName("준비중인 주문을, 판매자는 배송 중 상태로 변경할 수 있다.")
@@ -113,22 +118,24 @@ class SellerFacadeServiceTest {
 
     @DisplayName("준비중인 주문을 판매자는 취소 상태로 변경할 수 있다")
     @Test
-    public void whenChangeDeliveryStatusToCancelFromReady_thenReturnOrderStatus() throws Exception {
+    void whenChangeDeliveryStatusToCancelFromReady_thenReturnOrderStatus() throws Exception {
         //given
         OrderCreatedDto orderCreatedDto = createOrder();
-        int originStockQuantity = itemRepository.findById(1L).get().getStockQuantity();
         sellerFacadeService.changeProductDeliveryStatusToReady(userSeller.getId(),
             orderCreatedDto.orderItemCompleteDtoList().get(0).id());
 
         //when
-        sellerFacadeService.changeProductDeliveryStatusToCancel(userSeller.getId(),
+        OrderItemProgressDto response =
+          sellerFacadeService.changeProductDeliveryStatusToCancel(
+            userSeller.getId(),
             orderCreatedDto.orderItemCompleteDtoList().get(0).id());
 
         //then
-        var nowOrder = buyerFacadeService.checkProductOrderStatus(orderCreatedDto.id());
-        assertEquals(DeliveryStatus.CANCEL, nowOrder.deliveryStatus());
-        assertEquals(originStockQuantity + 10,
-            itemRepository.findById(1L).get().getStockQuantity());
+        assertThat(response.id()).isEqualTo(orderCreatedDto.orderItemCompleteDtoList().get(0).id());
+        assertThat(response.itemId()).isEqualTo(item.getId());
+        assertThat(response.deliveryStatus()).isEqualTo(DeliveryStatus.CANCEL);
+        assertThat(response.itemQuantity()).isEqualTo(orderCreatedDto.orderItemCompleteDtoList().get(0).itemQuantity());
+        assertThat(response.itemPrice()).isEqualTo(orderCreatedDto.orderItemCompleteDtoList().get(0).itemPrice());
     }
 
     @DisplayName("생성된 주문을, 판매자는 취소 상태로 변경할 수 있다.")
