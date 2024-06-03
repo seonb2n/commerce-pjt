@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserBuyerRepository extends JpaRepository<UserBuyer, Long> {
 
+    UserBuyer findByUsername(String username);
+
 }
