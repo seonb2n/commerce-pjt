@@ -17,9 +17,9 @@ public abstract class User extends BaseEntity {
     @GeneratedValue
     private Long id;
 
-    private String loginId;
+    private String username;
 
-    private String loginPassword;
+    private String password;
 
     private String nickName;
 
