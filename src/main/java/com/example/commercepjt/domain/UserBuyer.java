@@ -25,8 +25,8 @@ public class UserBuyer extends User {
     private int point;
 
     @Builder
-    public UserBuyer(Long id, String loginId, String loginPassword, String nickName, int point) {
-        super(id, loginId, loginPassword, nickName);
+    public UserBuyer(Long id, String loginId, String loginPassword, String nickName, int point, Role role) {
+        super(id, loginId, loginPassword, nickName, role);
         this.point = point;
     }
 }
