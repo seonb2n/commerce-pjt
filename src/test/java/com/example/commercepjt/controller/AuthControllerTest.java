@@ -3,11 +3,12 @@ package com.example.commercepjt.controller;
 import com.example.commercepjt.common.enums.RoleStatus;
 
 import com.example.commercepjt.domain.Role;
-import com.example.commercepjt.domain.User;
+import com.example.commercepjt.domain.UserBuyer;
 import com.example.commercepjt.domain.UserSeller;
 import com.example.commercepjt.dto.request.UserRegisterDto;
 import com.example.commercepjt.dto.response.UserRegisteredDto;
 import com.example.commercepjt.repository.RoleRepository;
+import com.example.commercepjt.repository.UserBuyerRepository;
 import com.example.commercepjt.repository.UserSellerRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,13 +28,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @ActiveProfiles("test")
-class AuthControllerIntegrationTest {
+class AuthControllerTest {
 
     @Autowired
     private WebApplicationContext context;
 
     @Autowired
     private UserSellerRepository userSellerRepository;
+
+    @Autowired
+    private UserBuyerRepository userBuyerRepository;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -48,11 +52,11 @@ class AuthControllerIntegrationTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     }
 
-    @DisplayName("[Integration Test] 사용자 회원가입 성공")
+    @DisplayName("[Controller-Auth] 판매자 회원가입 성공")
     @Test
-    void givenValidUser_whenRegisterUser_thenReturnUserRegisteredDto() throws Exception {
+    void givenValidSeller_whenRegisterSeller_thenReturnUserRegisteredDto() throws Exception {
         // given
-        UserRegisterDto requestDto = new UserRegisterDto("jake", "password123", RoleStatus.SELLER);
+        UserRegisterDto requestDto = new UserRegisterDto("seller_jake01", "password123", RoleStatus.SELLER);
 
         // when & then
         mockMvc.perform(post("/api/v1/auth/register")
@@ -61,23 +65,61 @@ class AuthControllerIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().json(objectMapper.writeValueAsString(
-                new UserRegisteredDto(userSellerRepository.findByUsername("jake")))));
+                new UserRegisteredDto(userSellerRepository.findByUsername("seller_jake01")))));
     }
 
-    @DisplayName("[Integration Test] 사용자 회원가입 실패 - 이미 존재하는 사용자")
+    @DisplayName("[Controller-Auth] 판매자 회원가입 실패 - 이미 존재하는 사용자")
     @Test
-    void givenExistingUser_whenRegisterUser_thenReturnBadRequest() throws Exception {
+    void givenExistingSeller_whenRegisterSeller_thenReturnBadRequest() throws Exception {
         // given
         Role sellerRole = roleRepository.save(new Role(RoleStatus.SELLER));
-        UserSeller existingUser = UserSeller.builder()
-            .loginId("jake")
-            .nickName("jake")
+        UserSeller existingSeller = UserSeller.builder()
+            .loginId("seller_jake02")
+            .nickName("seller_jake02")
             .loginPassword("password123")
             .role(sellerRole)
             .build();
-        userSellerRepository.save(existingUser);
+        userSellerRepository.save(existingSeller);
 
-        UserRegisterDto requestDto = new UserRegisterDto("jake", "password123", RoleStatus.SELLER);
+        UserRegisterDto requestDto = new UserRegisterDto("seller_jake02", "password123", RoleStatus.SELLER);
+
+        // when & then
+        mockMvc.perform(post("/api/v1/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+            .andExpect(status().isBadRequest());
+    }
+
+    @DisplayName("[Controller-Auth] 구매자 회원가입 성공")
+    @Test
+    void givenValidBuyer_whenRegisterBuyer_thenReturnUserRegisteredDto() throws Exception {
+        // given
+        UserRegisterDto requestDto = new UserRegisterDto("buyer_jake01", "password123", RoleStatus.BUYER);
+
+        // when & then
+        mockMvc.perform(post("/api/v1/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(content().json(objectMapper.writeValueAsString(
+                new UserRegisteredDto(userBuyerRepository.findByUsername("buyer_jake01")))));
+    }
+
+    @DisplayName("[Controller-Auth] 구매자 회원가입 실패 - 이미 존재하는 사용자")
+    @Test
+    void givenExistingBuyer_whenRegisterBuyer_thenReturnBadRequest() throws Exception {
+        // given
+        Role buyerRole = roleRepository.save(new Role(RoleStatus.BUYER));
+        UserBuyer existingBuyer = UserBuyer.builder()
+            .loginId("buyer_jake02")
+            .nickName("buyer_jake02")
+            .loginPassword("password123")
+            .role(buyerRole)
+            .build();
+        userBuyerRepository.save(existingBuyer);
+
+        UserRegisterDto requestDto = new UserRegisterDto("buyer_jake02", "password123", RoleStatus.BUYER);
 
         // when & then
         mockMvc.perform(post("/api/v1/auth/register")
