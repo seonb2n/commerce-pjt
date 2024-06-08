@@ -31,8 +31,8 @@ public class UserSeller extends User {
     @Builder
     public UserSeller(Long id, String loginId, String loginPassword, String nickName,
         List<Item> items,
-        int profit) {
-        super(id, loginId, loginPassword, nickName);
+        int profit, Role role) {
+        super(id, loginId, loginPassword, nickName, role);
         this.items = items;
         this.profit = profit;
     }
