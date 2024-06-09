@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
-    Role findRoleByRoleStatus(RoleStatus roleStatus);
+    Role findFirstByRoleStatus(RoleStatus roleStatus);
 
 }
