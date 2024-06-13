@@ -8,11 +8,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.commercepjt.common.enums.DeliveryStatus;
+import com.example.commercepjt.common.enums.RoleStatus;
 import com.example.commercepjt.common.utils.auth.JwtUtil;
 import com.example.commercepjt.dto.request.ItemCreateDto;
 import com.example.commercepjt.dto.request.ItemDeliveryStatusChangeDto;
 import com.example.commercepjt.dto.response.ItemDto;
 import com.example.commercepjt.dto.response.OrderItemProgressDto;
+import com.example.commercepjt.security.WithMockMyUserDetails;
 import com.example.commercepjt.service.facade.SellerFacadeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
@@ -46,13 +48,13 @@ class SellerControllerTest {
 
     @DisplayName("[Controller-Seller] 상품 업로드 호출")
     @Test
-    @WithMockUser(username = "jake", roles = "SELLER")
+    @WithMockMyUserDetails(userId = 1L, roleStatus = RoleStatus.SELLER)
     void givenUploadProduct_whenUploadProduct_thenReturnItemCreateDto() throws Exception {
         // given
-        ItemCreateDto request = new ItemCreateDto(1L, 2L, "Product", "Description", 100, 10);
+        ItemCreateDto request = new ItemCreateDto(2L, "Product", "Description", 100, 10);
         ItemDto response = new ItemDto(1L, "seller", "Product", "Description", 100, true);
 
-        when(sellerFacadeService.uploadProduct(request.sellerId(), request.categoryId(),
+        when(sellerFacadeService.uploadProduct(1L, request.categoryId(),
             request.name(), request.description(), request.price(),
             request.stockQuantity())).thenReturn(response);
 
@@ -66,7 +68,7 @@ class SellerControllerTest {
 
     @DisplayName("[Controller-Seller] 내 판매 상품 조회")
     @Test
-    @WithMockUser(username = "jake", roles = "SELLER")
+    @WithMockMyUserDetails(userId = 1L, roleStatus = RoleStatus.SELLER)
     void givenProductList_whenGetSellingList_thenReturnItemDtoList() throws Exception {
         // given
         List<ItemDto> response = List.of(
@@ -76,14 +78,14 @@ class SellerControllerTest {
 
         // when & then
         mockMvc.perform(
-                get("/api/v1/seller/selling-list/1").with(SecurityMockMvcRequestPostProcessors.csrf()))
+                get("/api/v1/seller/selling-list").with(SecurityMockMvcRequestPostProcessors.csrf()))
             .andExpect(status().isOk())
             .andExpect(content().json(objectMapper.writeValueAsString(response)));
     }
 
     @DisplayName("[Controller-Seller] 내 판매 총액 조회")
     @Test
-    @WithMockUser(username = "jake", roles = "SELLER")
+    @WithMockMyUserDetails(userId = 1L, roleStatus = RoleStatus.SELLER)
     void givenSellingProductIncome_whenGetTotalIncome_thenReturnIncome() throws Exception {
         // given
         int response = 1000;
@@ -91,7 +93,7 @@ class SellerControllerTest {
         when(sellerFacadeService.getMySellingProductTotalIncome(1L)).thenReturn(response);
 
         // when & then
-        mockMvc.perform(get("/api/v1/seller/selling-summary/1").with(
+        mockMvc.perform(get("/api/v1/seller/selling-summary").with(
                 SecurityMockMvcRequestPostProcessors.csrf())).andExpect(status().isOk())
             .andExpect(content().string(String.valueOf(response)));
     }
@@ -99,12 +101,12 @@ class SellerControllerTest {
 
     @DisplayName("[Controller-Seller] 주문 상품 상태 변경 ready")
     @Test
-    @WithMockUser(username = "jake", roles = "SELLER")
+    @WithMockMyUserDetails(userId = 1L, roleStatus = RoleStatus.SELLER)
     public void given_whenChangeProductStatusToReady_thenReturn() throws Exception {
         //given
         OrderItemProgressDto response = new OrderItemProgressDto(1L, 1L, 10, 1000,
             DeliveryStatus.READY);
-        ItemDeliveryStatusChangeDto request = new ItemDeliveryStatusChangeDto(1L, 1L,
+        ItemDeliveryStatusChangeDto request = new ItemDeliveryStatusChangeDto(1L,
             DeliveryStatus.READY);
 
         when(sellerFacadeService.changeProductDeliveryStatusToReady(1L, 1L)).thenReturn(response);
@@ -119,12 +121,12 @@ class SellerControllerTest {
 
     @DisplayName("[Controller-Seller] 주문 상품 상태 변경 transit")
     @Test
-    @WithMockUser(username = "jake", roles = "SELLER")
+    @WithMockMyUserDetails(userId = 1L, roleStatus = RoleStatus.SELLER)
     public void given_whenChangeProductStatusToTransit_thenReturn() throws Exception {
         //given
         OrderItemProgressDto response = new OrderItemProgressDto(1L, 1L, 10, 1000,
             DeliveryStatus.IN_TRANSIT);
-        ItemDeliveryStatusChangeDto request = new ItemDeliveryStatusChangeDto(1L, 1L,
+        ItemDeliveryStatusChangeDto request = new ItemDeliveryStatusChangeDto(1L,
             DeliveryStatus.IN_TRANSIT);
 
         when(sellerFacadeService.changeProductDeliveryStatusToTransit(1L, 1L)).thenReturn(response);
@@ -139,12 +141,12 @@ class SellerControllerTest {
 
     @DisplayName("[Controller-Seller] 주문 상품 상태 변경 done")
     @Test
-    @WithMockUser(username = "jake", roles = "SELLER")
+    @WithMockMyUserDetails(userId = 1L, roleStatus = RoleStatus.SELLER)
     public void given_whenChangeProductStatusToDone_thenReturn() throws Exception {
         //given
         OrderItemProgressDto response = new OrderItemProgressDto(1L, 1L, 10, 1000,
             DeliveryStatus.DONE);
-        ItemDeliveryStatusChangeDto request = new ItemDeliveryStatusChangeDto(1L, 1L,
+        ItemDeliveryStatusChangeDto request = new ItemDeliveryStatusChangeDto(1L,
             DeliveryStatus.DONE);
 
         when(sellerFacadeService.changeProductDeliveryStatusToDone(1L, 1L)).thenReturn(response);
@@ -159,12 +161,12 @@ class SellerControllerTest {
 
     @DisplayName("[Controller-Seller] 주문 상품 상태 변경 cancel")
     @Test
-    @WithMockUser(username = "jake", roles = "SELLER")
+    @WithMockMyUserDetails(userId = 1L, roleStatus = RoleStatus.SELLER)
     public void given_whenChangeProductStatusToCancel_thenReturn() throws Exception {
         //given
         OrderItemProgressDto response = new OrderItemProgressDto(1L, 1L, 10, 1000,
             DeliveryStatus.CANCEL);
-        ItemDeliveryStatusChangeDto request = new ItemDeliveryStatusChangeDto(1L, 1L,
+        ItemDeliveryStatusChangeDto request = new ItemDeliveryStatusChangeDto(1L,
             DeliveryStatus.CANCEL);
 
         when(sellerFacadeService.changeProductDeliveryStatusToCancel(1L, 1L)).thenReturn(response);
